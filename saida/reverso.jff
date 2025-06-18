@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--Created with AFD Tool-->
+<structure><type>fa</type><automaton>
+		<!--The list of states.--><state id="0" name="0"><x>100.0</x><y>100.0</y><final /></state>
+		<state id="1" name="1"><x>100.0</x><y>200.0</y></state>
+		<state id="2" name="novo_inicial"><x>200.0</x><y>200.0</y><initial /></state>
+				<!--The list of transitions.-->
+		<transition><from>1</from><to>0</to><read>0</read></transition>
+				<!--The list of transitions.-->
+		<transition><from>1</from><to>0</to><read>1</read></transition>
+				<!--The list of transitions.-->
+		<transition><from>2</from><to>1</to><read>ε</read></transition>
+			</automaton></structure>
