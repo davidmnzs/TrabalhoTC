@@ -1,4 +1,4 @@
-from automatos import carregar_afd_jff, salvar_afd_jff, reverso, intersecao
+from automatos import carregar_afd_jff, salvar_afd_jff, reverso,intersecao
 import os
 
 def mostrar_menu():
