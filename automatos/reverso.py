@@ -1,24 +1,73 @@
-from .parser import AFD  # Importação relativa corrigida
-from collections import defaultdict
+import xml.etree.ElementTree as ET
 
-def reverso(afd):
-    novo_afd = AFD()  # Agora usando a classe importada corretamente
-    novo_afd.alfabeto = afd.alfabeto.copy()
-    
-    # Restante do código permanece igual...
-    transicoes_rev = defaultdict(dict)
-    for (origem, simbolo), destino in afd.transicoes.items():
-        transicoes_rev[destino][simbolo] = origem
-    
-    novo_afd.estado_inicial = 'novo_inicial'
-    novo_afd.estados_finais = {afd.estado_inicial}
-    novo_afd.estados = afd.estados.union({novo_afd.estado_inicial})
-    
-    for estado, trans in transicoes_rev.items():
-        for simbolo, destino in trans.items():
-            novo_afd.transicoes[(estado, simbolo)] = destino
-    
-    for estado_final in afd.estados_finais:
-        novo_afd.transicoes[(novo_afd.estado_inicial, 'ε')] = estado_final
-    
-    return novo_afd
+def reverso(caminho_entrada, caminho_saida):
+    tree = ET.parse(caminho_entrada)
+    root = tree.getroot()
+
+    automaton = root.find("automaton")
+
+    estados = automaton.findall("state")
+    transicoes = automaton.findall("transition")
+
+    # Identificar estado inicial e finais
+    estado_inicial_antigo = None
+    estados_finais_antigos = []
+
+    for estado in estados:
+        if estado.find("initial") is not None:
+            estado_inicial_antigo = estado
+        if estado.find("final") is not None:
+            estados_finais_antigos.append(estado)
+
+    if not estado_inicial_antigo:
+        raise ValueError("Nenhum estado inicial encontrado.")
+
+    # Gerar novo ID
+    novo_id = max(int(e.get("id")) for e in estados) + 1
+
+    # Criar novo estado inicial
+    novo_estado = ET.Element("state", id=str(novo_id), name="NovoI")
+    ET.SubElement(novo_estado, "x").text = "10.0"
+    ET.SubElement(novo_estado, "y").text = "10.0"
+    ET.SubElement(novo_estado, "initial")
+    automaton.insert(0, novo_estado)  # adiciona no início para manter ordem
+
+    # Alterar antigo inicial para final
+    if estado_inicial_antigo.find("initial") is not None:
+        estado_inicial_antigo.remove(estado_inicial_antigo.find("initial"))
+    if estado_inicial_antigo.find("final") is None:
+        ET.SubElement(estado_inicial_antigo, "final")
+
+    # Remover tag <final> dos antigos finais (exceto o que acabou de virar final)
+    for estado in estados_finais_antigos:
+        if estado != estado_inicial_antigo:
+            final_tag = estado.find("final")
+            if final_tag is not None:
+                estado.remove(final_tag)
+
+    # Criar transição ε do novo inicial para antigo inicial
+    transicao_epsilon = ET.Element("transition")
+    ET.SubElement(transicao_epsilon, "from").text = str(novo_id)
+    for estado in estados_finais_antigos:
+        ET.SubElement(transicao_epsilon, "to").text = estado.get("id")
+    ET.SubElement(transicao_epsilon, "read")  # leitura vazia (ε)
+    automaton.append(transicao_epsilon)
+
+    # Inverter transições (exceto a que foi criada agora)
+    for transicao in transicoes:
+        leitura = transicao.find("read")
+        leitura_vazia = leitura is None or leitura.text in (None, "", "ε")
+
+        de = transicao.find("from")
+        para = transicao.find("to")
+
+        # Checar se é a transição criada (ε a partir do novo estado)
+        if leitura_vazia and de.text == str(novo_id):
+            continue  # não inverte
+
+        # Inverter from <-> to
+        de.text, para.text = para.text, de.text
+
+    # Salvar novo arquivo
+    tree.write(caminho_saida, encoding="utf-8", xml_declaration=True)
+    print(f"Arquivo modificado e transições invertidas salvo em: {caminho_saida}")
