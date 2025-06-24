@@ -14,22 +14,31 @@ def carregar_afd_jff(arquivo):
     afd = AFD()
     tree = ET.parse(arquivo)
     root = tree.getroot()
+
+    id_para_nome = {}
     
     for state in root.findall('automaton/state'):
-        id_state = state.get('id')
-        afd.estados.add(id_state)
+        id_ = state.get('id')
+        nome = state.get('name')
+        id_para_nome[id_] = nome
+        afd.estados.add(nome)
         
         if state.find('initial') is not None:
-            afd.estado_inicial = id_state
+            afd.estado_inicial = nome
         if state.find('final') is not None:
-            afd.estados_finais.add(id_state)
+            afd.estados_finais.add(nome)
     
     for trans in root.findall('automaton/transition'):
-        origem = trans.find('from').text
-        destino = trans.find('to').text
-        simbolo = trans.find('read').text
+        origem_id = trans.find('from').text
+        destino_id = trans.find('to').text
+        simbolo = trans.find('read').text or ''
         
-        afd.alfabeto.add(simbolo)
+        origem = id_para_nome[origem_id]
+        destino = id_para_nome[destino_id]
+        
+        if simbolo != '':
+            afd.alfabeto.add(simbolo)
+        
         afd.transicoes[(origem, simbolo)] = destino
     
     return afd
