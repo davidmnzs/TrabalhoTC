@@ -3,7 +3,7 @@ from .parser import AFD
 def intersecao(afd1, afd2):
     novo_afd = AFD()
 
-    novo_afd.alfabeto = afd1.alfabeto.intersection(afd2.alfabeto)
+    novo_afd.alfabeto = afd1.alfabeto.union(afd2.alfabeto)
     
     estados_produto = {}  # (estado1, estado2) -> nome_composto
     
