@@ -74,7 +74,9 @@ def executar_reverso():
 
     try:
         os.makedirs('saida', exist_ok=True)
-        caminho_saida = 'saida/reverso.jff'
+        nome_base = os.path.basename(arquivo)            # ex: "automato1.jff"
+        nome_sem_extensao = os.path.splitext(nome_base)[0]  # ex: "automato1"
+        caminho_saida = f'saida/{nome_sem_extensao}_reverso.jff'
         reverso(arquivo, caminho_saida)
         print(f"\n✅ Reverso salvo em '{caminho_saida}'")
     except Exception as e:

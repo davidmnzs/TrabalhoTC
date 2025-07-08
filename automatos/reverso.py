@@ -9,7 +9,6 @@ def reverso(caminho_entrada, caminho_saida):
     estados = automaton.findall("state")
     transicoes = automaton.findall("transition")
 
-    # Identificar estado inicial e finais
     estado_inicial_antigo = None
     estados_finais_antigos = []
 
