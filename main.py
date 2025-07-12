@@ -2,14 +2,13 @@ import os
 from automatos import carregar_afd_jff, salvar_afd_jff, reverso, intersecao
 
 def mostrar_menu():
-    print("\n=== Ferramenta de Operações com AFD ===")
+    print("\n=== Escolha Uma Operacao ===")
     print("1. Interseção de AFDs")
     print("2. Reverso de AFD")
     print("3. Sair")
     return input("Escolha uma opção: ")
 
 def listar_arquivos_jff(pasta='arquivos'):
-    """Lista todos os arquivos .jff na pasta especificada"""
     try:
         arquivos = [f for f in os.listdir(pasta) if f.endswith('.jff')]
         if not arquivos:
@@ -50,7 +49,7 @@ def executar_intersecao():
         return
 
     try:
-        # ✅ Corrigido: carregar os AFDs dos arquivos selecionados
+
         afd1 = carregar_afd_jff(arquivo1)
         afd2 = carregar_afd_jff(arquivo2)
         
@@ -74,8 +73,8 @@ def executar_reverso():
 
     try:
         os.makedirs('saida', exist_ok=True)
-        nome_base = os.path.basename(arquivo)            # ex: "automato1.jff"
-        nome_sem_extensao = os.path.splitext(nome_base)[0]  # ex: "automato1"
+        nome_base = os.path.basename(arquivo)            
+        nome_sem_extensao = os.path.splitext(nome_base)[0]  
         caminho_saida = f'saida/{nome_sem_extensao}_reverso.jff'
         reverso(arquivo, caminho_saida)
         print(f"\n✅ Reverso salvo em '{caminho_saida}'")
